@@ -1,4 +1,4 @@
-import { Actor, CollisionType, Color, Engine, Text, ExitViewPortEvent, vec, Font } from "excalibur"
+import { Actor, CollisionType, Color, Engine, Text, ExitViewPortEvent, vec, Font, Label, FontUnit, Random,  } from "excalibur"
 
 // 1 - Criar uma instancia de Engine, que respresenta o jogo
 
@@ -44,6 +44,7 @@ const bolinha = new Actor({
 	radius: 10,
 	color: Color.Red
 })
+
 
 bolinha.body.collisionType = CollisionType.Passive
 
@@ -96,6 +97,10 @@ const linhas = 3
 
 const corBloco = [Color.Red, Color.Orange, Color.Yellow]
 
+let bolinhaColor = [Color.Red, Color.Orange, Color.Yellow]
+
+// let bolinhaColor[Math.trunc(Math.random() * 2.9)]
+
 const larguraBloco = (game.drawWidth / colunas) - padding - (padding / colunas)
 
 // const larguraBloco = 136
@@ -135,26 +140,54 @@ listaBlocos.forEach( bloco => {
 
 // Adicionando pontuacao
 
+// let pontos = 0
+
+// const textoPontos = new Text({
+// 	text: "Hello World",
+// 	font: new Font({size: 20})
+// })
+
+
+// const objetoTexto = new Actor ({
+// 	x: game.drawWidth - 80,
+// 	y: game.drawHeight - 15
+// })
+
+// objetoTexto.graphics.use(textoPontos)
+
+// game.add(objetoTexto)
+
+// Adicionado pontuacao
+
 let pontos = 0
 
-const textoPontos = new Text({
-	text: "Hello World",
-	font: new Font({size: 20})
+// text e Actor =
+const textoPontos = new Label({
+	text: pontos.toString(),
+	font: new Font({
+		size: 40,
+		color: Color.White,
+		strokeColor: Color.Black,
+		unit: FontUnit.Px
+	}),
+	pos: vec(600, 500)
 })
 
-
-const objetoTexto = new Actor ({
-	x: game.drawWidth - 80,
-	y: game.drawHeight - 15
-})
-
-objetoTexto.graphics.use(textoPontos)
-
-game.add(objetoTexto)
-
+game.add(textoPontos)
 
 
 let colidindo: boolean = false
+
+
+// function getRandomColor() {
+//     const letters = '0123456789ABCDEF';
+//     let color = '#';
+//     for (let i = 0; i < 6; i++) {
+//         color += letters[Math.floor(Math.random() * 16)];
+//     }
+//     return color;
+// }
+
 
 bolinha.on("collisionstart", (event) => {
 
@@ -162,16 +195,67 @@ bolinha.on("collisionstart", (event) => {
 
 	if (listaBlocos.includes(event.other) ) {
 		// Destruir o bloco colidido 
+
 		event.other.kill()
-	}
+
+		// Adiciona um ponto 
+
+		pontos++
+
+		// Atualiza valor de placar - textPontos
+
+		textoPontos.text = pontos.toString()
+
+		// bolinha.color.getRandomColor = getRandomColor;
+
+		// game.push(bolinha)
+
+		
+
+		// const bolinhaColor = new Actor({
+		// 	color: Color(bolinhaColor)
+		// })
+		
+
+		// Retorna uma cor aleatoria da lista bolinhaColor
+		// bolinhaColor[Math.trunc(Math.random() * 2.9)]
+
+		let indexColor = Math.trunc(Math.random() * 2.9)
+
+	// 	bolinha = new Actor ({
+	// 		const bolinha = new Actor(bolinhaColor);
+
+	let bolinha = new Actor({
+		color: bolinhaColor[indexColor]
+	})
+
+
+	// bolinha.color = Color[bolinhaColor],
+
+	// game.add(bolinha)
+
+
+	// bolinha.color = (bolinhaColor)
+
+	game.add(bolinha)
+
+}
+		
+ 
+
+
+	// var colorRandom = randomColor();
+
 
 	// rebater a bolinha - inventer as direcoes
 	//  "minimum translation vector" is a vector 'normalize()'
 
-	let interseccao = event.contact.mtv.normalize()
+	
 
 	if (!colidindo) {
 		colidindo = true
+
+		let interseccao = event.contact.mtv.normalize()
 
 		//  interseccao.x e interssecao.y
 		//  O maior representa o eixo onde houve o contato
@@ -188,16 +272,19 @@ bolinha.on("collisionstart", (event) => {
 		}
 
 	}
+
+
+
 })
 
 bolinha.on("collisionend", () => {
 	colidindo = false
 })
 
-// bolinha.on("exitviewport", () => {
-// 	alert("E morreu")
-// 	window.location.reload()
-// })
+bolinha.on("exitviewport", () => {
+	alert("E morreu")
+	window.location.reload()
+})
 // Inicia o game
 
 game.start()
