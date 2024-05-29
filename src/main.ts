@@ -1,4 +1,4 @@
-import { Actor, CollisionType, Color, Engine, Text, ExitViewPortEvent, vec, Font, Label, FontUnit, Random,  } from "excalibur"
+import { Actor, CollisionType, Color, Engine, Text, ExitViewPortEvent, vec, Font, Label, FontUnit, Random, Loader, Sound,  } from "excalibur"
 
 // 1 - Criar uma instancia de Engine, que respresenta o jogo
 
@@ -18,6 +18,8 @@ const barra = new Actor({
 
 	
 })
+
+
 
 // Define o tipo de colisao da barra 
 // CollisionType.Fixed = significa que ele nao ira se "mexer" quando colidir
@@ -47,6 +49,21 @@ const bolinha = new Actor({
 
 
 bolinha.body.collisionType = CollisionType.Passive
+
+let coresBolinha = [
+	Color.Black,
+	Color.Chartreuse,
+	Color.Cyan,
+	Color.Green,
+	Color.Magenta,
+	Color.Orange,
+	Color.Red,
+	Color.Rose,
+	Color.White,
+	Color.Yellow
+]
+
+let numeroCores = coresBolinha.length
 
 // 5 - Criar movimentacao da bolinha
 
@@ -97,7 +114,7 @@ const linhas = 3
 
 const corBloco = [Color.Red, Color.Orange, Color.Yellow]
 
-let bolinhaColor = [Color.Red, Color.Orange, Color.Yellow]
+// let bolinhaColor = [Color.Red, Color.Orange, Color.Yellow]
 
 // let bolinhaColor[Math.trunc(Math.random() * 2.9)]
 
@@ -176,7 +193,7 @@ const textoPontos = new Label({
 game.add(textoPontos)
 
 
-let colidindo: boolean = false
+
 
 
 // function getRandomColor() {
@@ -188,6 +205,14 @@ let colidindo: boolean = false
 //     return color;
 // }
 
+const sound = new Sound("./sounds/bounce.wav")
+
+const gameOverSound = new Sound("./sounds/gameoversound.wav")
+
+const loader = new Loader([sound, gameOverSound])
+
+let colidindo: boolean = false
+
 
 bolinha.on("collisionstart", (event) => {
 
@@ -198,13 +223,39 @@ bolinha.on("collisionstart", (event) => {
 
 		event.other.kill()
 
+		// Executar som
+		sound.play(1)
+
 		// Adiciona um ponto 
 
 		pontos++
 
+		// Mudar a cor da bolinha
+
+		bolinha.color = coresBolinha[ Math.trunc( Math.random() * numeroCores) ]
+
+		//  math random -> 0 - 1 * numeroCores -> 10
+		// 0.5 * 10 = 5
+		// 0.3 * 10 = 3
+		// 0.873 * 10 = 8.73
+
+		// Math.trunc() -> retorna somente a porcao inteira de um numero
+
+		//  mudar a cor da bolinha com a cor do bloco colidido
+
+		bolinha.color = event.other.color
+
 		// Atualiza valor de placar - textPontos
 
 		textoPontos.text = pontos.toString()
+
+		// Se acabar os blocos, mostrar msg de vitoria
+
+		if(pontos == 15) {
+			alert("Parabéns você venceu!!!")
+
+			window.location.reload()
+		}
 
 		// bolinha.color.getRandomColor = getRandomColor;
 
@@ -220,14 +271,13 @@ bolinha.on("collisionstart", (event) => {
 		// Retorna uma cor aleatoria da lista bolinhaColor
 		// bolinhaColor[Math.trunc(Math.random() * 2.9)]
 
-		let indexColor = Math.trunc(Math.random() * 2.9)
+	// 	let indexColor = Math.trunc(Math.random() * 2.9)
 
-	// 	bolinha = new Actor ({
-	// 		const bolinha = new Actor(bolinhaColor);
+	// // 	bolinha = new Actor ({
+	// // 		const bolinha = new Actor(bolinhaColor);
 
-	let bolinha = new Actor({
-		color: bolinhaColor[indexColor]
-	})
+	// let bolinha = new Actor({
+	// 	color: bolinhaColor[indexColor]
 
 
 	// bolinha.color = Color[bolinhaColor],
@@ -282,9 +332,18 @@ bolinha.on("collisionend", () => {
 })
 
 bolinha.on("exitviewport", () => {
-	alert("E morreu")
+	// Excutar som de game over
+	gameOverSound.play(1)
+	.then(() => {
+		alert("E morreu")
+
 	window.location.reload()
+	})
 })
 // Inicia o game
 
-game.start()
+// game.start()
+
+await game.start(loader)
+
+
